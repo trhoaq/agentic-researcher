@@ -1,0 +1,2 @@
+[console_scripts]
+research-report-flow = research_report_flow.main:main

@@ -1,0 +1,112 @@
+Metadata-Version: 2.4
+Name: research-report-flow
+Version: 0.1.0
+Summary: CrewAI-based research and report writing flow with dual web and scholar retrieval.
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: crewai==1.14.1
+Requires-Dist: crewai-tools==1.14.1
+Requires-Dist: httpx<1,>=0.28.1
+Requires-Dist: pydantic<3,>=2.11.10
+Requires-Dist: pydantic-settings<3,>=2.10.1
+Requires-Dist: python-dotenv<2,>=1.1.1
+Provides-Extra: dev
+Requires-Dist: pytest<10,>=9; extra == "dev"
+Provides-Extra: gemini
+Requires-Dist: google-genai~=1.65.0; extra == "gemini"
+Provides-Extra: pdf
+Requires-Dist: mineru-vl-utils[transformers]; extra == "pdf"
+Requires-Dist: transformers>=4.56.0; extra == "pdf"
+
+# Research Report Flow
+
+CrewAI-based research and report writing flow with these lanes:
+
+- report requirements intake
+- report format intake
+- PDF template reader for report-format imitation
+- planning / outline
+- open-web retrieval
+- Google Scholar retrieval
+- source verification
+- evidence synthesis
+- report drafting
+- refinement
+
+## Environment
+
+The project is set up to run inside `.venv`.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e .[dev]
+```
+
+If you want Gemini as the report LLM provider, install the Gemini extra:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e .[dev,gemini]
+```
+
+CrewAI tries to write under user-local storage by default. This project redirects those paths into the workspace through runtime env setup.
+
+## Run
+
+```powershell
+.\.venv\Scripts\python.exe -m research_report_flow.main --brief-file examples/input_brief.md --format-file examples/report_format.md
+```
+
+Optional PDF template input:
+
+```powershell
+.\.venv\Scripts\python.exe -m research_report_flow.main --brief-file examples/input_brief.md --format-file examples/report_format.md --format-pdf-file path\to\sample-report.pdf
+```
+
+The command prints the final report path. Artifacts are written under `output/<run-id>/`.
+
+## Output Artifacts
+
+- `requirements.json`
+- `format-spec.json`
+- `pdf-template.json` when `--format-pdf-file` is provided
+- `research-plan.json`
+- `outline.json`
+- `web-candidates.json`
+- `scholar-candidates.json`
+- `merged-candidates.json`
+- `verified-sources.json`
+- `synthesis.json`
+- `draft.md`
+- `refinement.json`
+- `final-report.md`
+
+## Live Providers
+
+- Open-web search: `SERPER_API_KEY`
+- Google Scholar-compatible retrieval: `SERPAPI_API_KEY`
+- Research LLM (Gemini project-specific key): `RESEARCH_REPORT_GEMINI_API_KEY`
+
+For Gemini via CrewAI, set `RESEARCH_REPORT_MODEL` to a Gemini model name (for example `gemini/gemini-2.5-pro` or `gemini-2.5-pro`).
+
+## PDF Template Parsing
+
+The format lane can optionally read a sample report PDF and infer section structure before building `ReportFormatSpec`.
+
+- Default model target: `opendatalab/MinerU2.5-Pro-2604-1.2B`
+- Runtime backend: lazy `MinerU` integration when `mineru-vl-utils` + `transformers` are available
+- Fallback backend: `PyMuPDF` text extraction for tests and environments without MinerU dependencies
+
+If you want the MinerU backend, install its runtime pieces in the existing `.venv`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install "mineru-vl-utils[transformers]" transformers
+```
+
+The model card and quick-start are here:
+- https://huggingface.co/opendatalab/MinerU2.5-Pro-2604-1.2B
+
+Optional environment variables for Hugging Face download/auth:
+
+- `HUGGINGFACE_HUB_TOKEN` for authenticated model downloads when needed
+- `HF_HOME` to relocate Hugging Face cache
+
+If `USE_LIVE_CREWS=false` or no LLM/provider credentials are present, the flow uses deterministic fallback logic. That keeps unit tests stable and still preserves the same contracts between stages.

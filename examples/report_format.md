@@ -1,0 +1,8 @@
+- Executive Summary
+- Research Objective
+- Key Questions
+- Findings by Theme
+- Evidence Table
+- Risks / Conflicts / Unknowns
+- Recommendations
+- Source Appendix

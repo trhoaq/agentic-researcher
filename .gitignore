@@ -1,0 +1,14 @@
+.omx/
+.venv/
+.tmp/
+.localapp/
+.crewai/
+output/
+__pycache__/
+*.pyc
+.hf
+.env
+AGENTS.md
+all.md
+request/
+.codex/

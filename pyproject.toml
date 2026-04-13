@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "research-report-flow"
+version = "0.1.0"
+description = "CrewAI-based research and report writing flow with dual web and scholar retrieval."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "crewai==1.14.1",
+  "crewai-tools==1.14.1",
+  "httpx>=0.28.1,<1",
+  "pydantic>=2.11.10,<3",
+  "pydantic-settings>=2.10.1,<3",
+  "python-dotenv>=1.1.1,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9,<10",
+]
+gemini = [
+  "google-genai~=1.65.0",
+]
+pdf = [
+  "mineru-vl-utils[transformers]",
+  "transformers>=4.56.0",
+]
+
+[project.scripts]
+research-report-flow = "research_report_flow.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

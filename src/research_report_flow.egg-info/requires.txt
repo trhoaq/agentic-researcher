@@ -1,0 +1,16 @@
+crewai==1.14.1
+crewai-tools==1.14.1
+httpx<1,>=0.28.1
+pydantic<3,>=2.11.10
+pydantic-settings<3,>=2.10.1
+python-dotenv<2,>=1.1.1
+
+[dev]
+pytest<10,>=9
+
+[gemini]
+google-genai~=1.65.0
+
+[pdf]
+mineru-vl-utils[transformers]
+transformers>=4.56.0

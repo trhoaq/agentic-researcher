@@ -4,6 +4,7 @@ import os
 import sys
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlparse
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -114,6 +115,11 @@ class Settings(BaseSettings):
     def should_use_live_crews(self) -> bool:
         if not self.use_live_crews:
             return False
+        if self.llm_model is None:
+            return False
+        return self._has_live_llm_provider()
+
+    def _has_live_llm_provider(self) -> bool:
         llm_signals = (
             os.getenv("OPENAI_API_KEY"),
             os.getenv("ANTHROPIC_API_KEY"),
@@ -124,7 +130,16 @@ class Settings(BaseSettings):
             self.research_report_gemini_api_key,
             self.research_report_openrouter_api_key,
         )
-        return self.llm_model is not None and any(llm_signals)
+        return any(llm_signals) or self._is_local_ollama_configuration()
+
+    def _is_local_ollama_configuration(self) -> bool:
+        if not self.llm_model or not self.llm_model.startswith("ollama/"):
+            return False
+        if not self.research_report_openrouter_base_url:
+            return False
+        parsed = urlparse(self.research_report_openrouter_base_url)
+        host = (parsed.hostname or "").lower()
+        return host in {"localhost", "127.0.0.1", "::1"}
 
 
 @lru_cache(maxsize=1)
@@ -135,8 +150,10 @@ def get_settings() -> Settings:
         os.environ["GEMINI_API_KEY"] = settings.research_report_gemini_api_key
     if settings.research_report_openrouter_api_key and not os.getenv("OPENROUTER_API_KEY"):
         os.environ["OPENROUTER_API_KEY"] = settings.research_report_openrouter_api_key
-    if settings.research_report_openrouter_base_url and not os.getenv("OPENROUTER_BASE_URL"):
-        os.environ["OPENROUTER_BASE_URL"] = settings.research_report_openrouter_base_url
+    if settings.research_report_openrouter_base_url:
+        for env_name in ("OPENROUTER_BASE_URL", "OPENAI_BASE_URL", "OPENAI_API_BASE"):
+            if not os.getenv(env_name):
+                os.environ[env_name] = settings.research_report_openrouter_base_url
     if not settings.web_search_api_key and os.getenv("SERPER_API_KEY"):
         settings.web_search_api_key = os.getenv("SERPER_API_KEY")
     if settings.free_api_mode:

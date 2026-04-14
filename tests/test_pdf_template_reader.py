@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from tempfile import mkdtemp
 
 from research_report_flow.config import Settings
 from research_report_flow.crews.format_crew import ReportFormatCrew
@@ -10,10 +11,10 @@ from research_report_flow.tools import PdfTemplateParser
 
 
 def test_pdf_template_reader_infers_sections_and_feeds_format() -> None:
-    tmp_path = Path("F:/Code/agent/.tmp/test-pdf-template")
-    tmp_path.mkdir(parents=True, exist_ok=True)
+    temp_root = Path("F:/Code/agent/output/test-temp")
+    temp_root.mkdir(parents=True, exist_ok=True)
+    tmp_path = Path(mkdtemp(prefix="test-pdf-template-", dir=temp_root))
     pdf_path = tmp_path / "sample-template.pdf"
-    pdf_path.write_bytes(b"%PDF-1.7\n%%EOF\n")
     settings = Settings(project_root=tmp_path, output_root=tmp_path / "output", use_live_crews=False)
     parser = PdfTemplateParser(
         settings=settings,

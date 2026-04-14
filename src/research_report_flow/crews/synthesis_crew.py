@@ -26,11 +26,16 @@ class SynthesisCrew:
             task = Task(
                 description=(
                     "Use the verified sources to build an evidence table and thematic findings aligned to the report outline.\n\n"
+                    "Return JSON only. Do not return YAML, markdown, commentary, or code fences.\n"
+                    "Required top-level keys: evidence_rows, findings, unknowns.\n"
+                    "Each evidence row must contain: claim, source_ids, confidence, notes.\n"
+                    "Each finding must contain: theme, summary, evidence_source_ids, open_questions.\n\n"
                     "Outline:\n{outline_json}\n\nVerified sources:\n{sources_json}"
                 ),
                 expected_output="A structured EvidenceSynthesis object.",
                 output_pydantic=EvidenceSynthesis,
                 agent=agent,
+                markdown=False,
             )
             result = kickoff_with_retry(
                 Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=self.settings.verbose_crews),

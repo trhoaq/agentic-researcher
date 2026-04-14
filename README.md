@@ -112,7 +112,7 @@ flowchart TD
 - `source_registry.py`: normalize URL + luu verified source registry.
 
 ### 3.5 Runtime Modes
-- **Live mode**: dung LLM/providers that, khi co credentials. Mac dinh **khong fallback** trong live mode; loi se dung flow.
+- **Live mode**: dung LLM/providers that. Cloud providers thuong can credentials; local Ollama co the chay khong can API key neu tro den endpoint localhost. Mac dinh **khong fallback** trong live mode; loi se dung flow.
 - **Deterministic mode**: dung logic fallback de test/smoke on dinh khi `USE_LIVE_CREWS=false`.
 
 ## 4. Tech Stack
@@ -185,7 +185,7 @@ The command prints the final report path. Artifacts are written under `output/<r
 
 - Open-web search: `TAVILY_API_KEY`
 - Google Scholar-compatible retrieval: `SERPAPI_API_KEY`
-- LLM reasoning : `Gemini` or `OpenRouter`
+- LLM reasoning : `Gemini`, `OpenRouter`, or local `Ollama`
 
 ## .env format
 
@@ -202,7 +202,14 @@ If using Openrouter free tier model
 - Using live crew: `USE_LIVE_CREWS=true`
 - Research model selector: `RESEARCH_REPORT_MODEL=openrouter/openai/gpt-oss-20b:free`
 - Research LLM (OpenRouter project-specific key): `RESEARCH_REPORT_OPENROUTER_API_KEY=your_openrouter_key`
-- Optional OpenRouter base URL override: `RESEARCH_REPORT_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1`
+- Optional OpenAI-compatible base URL override: `RESEARCH_REPORT_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1`
+
+If using local Ollama
+- Using live crew: `USE_LIVE_CREWS=true`
+- Research model selector: `RESEARCH_REPORT_MODEL=ollama/gemma4:31b-cloud`
+- Local OpenAI-compatible base URL: `RESEARCH_REPORT_OPENROUTER_BASE_URL=http://localhost:11434/v1`
+- `RESEARCH_REPORT_OPENROUTER_API_KEY` can stay empty for local Ollama
+- If `TAVILY_API_KEY` / `SERPAPI_API_KEY` are empty, retrieval lanes fall back to deterministic example sources while the LLM lanes still run live against Ollama
 
 
 Set-up for free tier
